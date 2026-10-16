@@ -8,15 +8,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    // Utilisation d'une requête préparée pour empêcher l'Injection SQL
-    $stmt = $pdo->prepare('SELECT * FROM users WHERE username = :username AND password = :password');
-    $stmt->execute([
-        'username' => $username,
-        'password' => $password
-    ]);
-
+    // 1. Récupération de l'utilisateur par son nom d'utilisateur avec une requête préparée
+    $stmt = $pdo->prepare('SELECT * FROM users WHERE username = :username');
+    $stmt->execute(['username' => $username]);
     $user = $stmt->fetch();
 
+    // 2. Vérification du mot de passe haché avec password_verify()
+    if ($user && password_verify($password, $user['password'])) {
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $user['username'];
+        header('Location: index_secure.php');
+        exit();
+    } else {
+        $error = "Identifiants incorrects ou tentative d'injection bloquée !";
+    }
     if ($user) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
