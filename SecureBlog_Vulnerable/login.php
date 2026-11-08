@@ -8,12 +8,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    // ============================================
-    // VULNÉRABLE : Requête SQL par concaténation
-    // Payloads qui fonctionnent :
-    //   admin' --
-    //   ' OR '1'='1
-    // ============================================
     $sql = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
 
     try {
